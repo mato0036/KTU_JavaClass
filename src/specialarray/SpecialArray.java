@@ -1,103 +1,202 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package specialarray;
 
 import java.util.Arrays;
-import java.util.Scanner;
 import java.util.InputMismatchException;
+import java.util.Scanner;
 
 
 /**
  *
- * @author mjancek
+ * @author Matej Janček
+ * 
+ * First laboratory work in Java class. Implementing basic array operations.
+ * 
  */
 public class SpecialArray {
+    
+    
+    private Coffee[] newCoffee;
+    
 
-    private int[] myArray;
-    
-    public SpecialArray(int count){
+    /**
+     * 
+     * Constructor
+     * 
+     * @param size size of new array
+     * 
+     */
+    public SpecialArray(int size){
         
-        myArray = new int[count];
-    }
-    
-    
-    public void fillFromKeyboard(int number){
-        
-        Scanner keyboard = new  Scanner(System.in);
-    
-        System.out.println("Enter " + myArray.length + " numbers to fill array:");
-        
-        for(int i = 0; i < myArray.length; i++){
-            myArray[i] = keyboard.nextInt();
+        // Catching wrong index
+        try{
+            
+            newCoffee = new Coffee[size];
+            
+        } catch(NegativeArraySizeException e){
+            
+            System.out.println("Enter positive number!\n");
+            System.exit(1);
         }
     }
     
     
+    /**
+     * 
+     * Fill array by numbers from input
+     * 
+     */
+    public void fillFromKeyboard(){
+        
+        Scanner keyboard = new Scanner(System.in);
+    
+        String origin, spiece;
+        int score, yearOfHarvest;
+        
+        System.out.println("Enter " + newCoffee.length + " lines with origin, spiece, score and year of harvest to fill array of coffee. \nSeparate fields with spaces, each coffee to new line.");
+        
+        for(int i = 0; i < newCoffee.length; i++){ 
+            
+            // Catching wrong input by user
+            try {
+            
+                origin = keyboard.next();
+                spiece = keyboard.next();
+                score = keyboard.nextInt();
+                yearOfHarvest = keyboard.nextInt();
+                
+                Coffee c = new Coffee(origin, spiece, score, yearOfHarvest);
+                newCoffee[i] = c;
+                
+            } catch(InputMismatchException e) {
+                
+                System.out.println("Wrong format of fields!");
+                System.exit(1);
+            }
+        }                    
+    }
+    
+    
+    /**
+     * 
+     * Printing array
+     * 
+     * @return  array to print
+     * 
+     */
     @Override
     public String toString(){
         
-        String arrayOutput = new String();
+        String arrayOutput = "";
         
-        for(int i = 0; i < myArray.length; i++){
-            arrayOutput += String.format("%d ", myArray[i]);
+        for(int i = 0; i < newCoffee.length; i++){
+            arrayOutput += newCoffee[i] + "\n";
         }
     
         return arrayOutput;
     }
     
     
-    public void addNumberByIndex(int number, int index){
+    /**
+     * 
+     * Add number to array to specific index
+     * 
+     * @param origin    country of origin of new coffee
+     * @param spiece    spiece of new coffee
+     * @param score     score of new coffee
+     * @param yearOfHarvest year of harvesting coffee
+     * @param index     index of new coffee
+     * 
+     */
+    public void addCoffeeByIndex(String origin, String spiece, int score, int yearOfHarvest, int index){
         
+        // Catching wrong index and wrong input by user
         try {
-            myArray[index] = number;
+            
+            newCoffee[index].setOrigin(origin);
+            newCoffee[index].setSpiece(spiece);
+            newCoffee[index].setYearOfHarvest(yearOfHarvest);
+            newCoffee[index].setScore(score);
         
-        } catch(InputMismatchException e) {
-            System.out.println("Wrong number or index.");
+        } catch(ArrayIndexOutOfBoundsException e) {
+            
+            System.out.println("Wrong index!");
+            
+        } catch(InputMismatchException e2){
+            
+            System.out.println("Wrong format of fields!");
         }
     }
    
     
-    public void removeElementByIndex(int index){
+    /**
+     * 
+     * Remove element with provided index from array
+     * 
+     * @param index index of element to be removed
+     * 
+     */
+    public void removeCoffeeByIndex(int index){
         
-        int newArray[] = new int[myArray.length - 1];
+        if(index > newCoffee.length || index < 0){
+            System.out.println("Wrong index.");
+            return;
+        }
+            
+        Coffee newArray[] = new Coffee[newCoffee.length - 1];
         
-        System.arraycopy(myArray, 0, newArray, 0, index);
+        System.arraycopy(newCoffee, 0, newArray, 0, index);
         
-        if(index != myArray.length - 1){
-            System.arraycopy(myArray, index + 1, newArray, index, newArray.length - index);
+        if(index != newCoffee.length - 1){
+            System.arraycopy(newCoffee, index + 1, newArray, index, newArray.length - index);
         }
         
-        myArray = newArray;
+        newCoffee = newArray;
     }
     
     
-    public boolean removeEmelentByValue(int value){
+    /**
+     * 
+     * Remove element with provided value from array
+     * 
+     * @param score coffee with this score to be removed
+     * 
+     * @return true on succes, false on fail
+     * 
+     */
+    public boolean removeCoffeeByScore(int score){
         
-        int newArray[] = new int[myArray.length -1];
+        Coffee newArray[] = new Coffee[newCoffee.length -1];
         
-        int index = linearSearch(value);
+        int index = linearSearch(score);
         
         if(index != -1){
-            System.arraycopy(myArray, 0, newArray, 0, index);
+            System.arraycopy(newCoffee, 0, newArray, 0, index);
                 
-            if(index != myArray.length - 1){
-                System.arraycopy(myArray, index + 1, newArray, index, myArray.length - index);
+            if(index != newCoffee.length - 1){
+                System.arraycopy(newCoffee, index + 1, newArray, index, newCoffee.length - index);
             }
-            myArray = newArray;
+            newCoffee = newArray;
             return true;
+            
         } else
-            return false;
-
-           
+            
+            return false;        
     }
     
-    public int linearSearch(int value){
+    
+    /**
+     * Searching value in array by linear search
+     * 
+     * @param score searched score
+     * 
+     * @return on success index of element with provided value
+     *          on fail -1
+     * 
+     */
+    public int linearSearch(int score){
         
-        for(int i = 0; i < myArray.length; i++){
-            if(myArray[i] == value){
+        for(int i = 0; i < newCoffee.length; i++){
+            if(newCoffee[i].getScore() == score){
                 return i;
             }
         }
@@ -106,22 +205,37 @@ public class SpecialArray {
     }
     
     
-    public int binarySearch(int value, int left, int right){
+    /**
+     * 
+     * Searching value in array by nonrecursive binary search
+     * 
+     * @param score searched score 
+     * 
+     * @return on success index of element with provided value
+     *          on fail -1
+     * 
+     */
+
+    public int binarySearch(int score){
         
-        if(right >= left){
+        int left = 0;
+        int right = newCoffee.length;
+        int middle;
+        
+        mySort();
+        
+        while(left <= right){                  
             
-            mySort();
+            middle = (right + left) / 2;
             
-            int middle = (right + left) / 2;
-            
-            if(myArray[middle] == value)
+            if(newCoffee[middle].getScore() == score)
                 return middle;
             
             
-            if(middle < value)
-                return binarySearch(value, middle + 1, right);
+            if(middle < score)
+                left = middle + 1;
             else
-                return binarySearch(value, left, middle + 1);
+                right = middle + 1;
             
         }
         
@@ -129,18 +243,15 @@ public class SpecialArray {
     }
     
     
+    /**
+     * 
+     * Sort array
+     * 
+     */
     public void mySort(){
         
-        Arrays.sort(myArray);
+        Arrays.sort(newCoffee);
         
-    }
-    
-    
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
-    }
+    }   
     
 }
